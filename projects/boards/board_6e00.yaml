@@ -1,0 +1,22 @@
+# Copyright 2025 HPMicro
+# SPDX-License-Identifier: Apache-2.0
+
+identifier: board_6e00
+name: Custom HPM6E00 Board
+type: mcu
+arch: riscv32
+toolchain:
+  - zephyr
+  - cross-compile
+ram: 1024
+flash: 16384
+supported:
+  - gpio
+  - uart
+  - i2c
+  - spi
+  - dma
+  - pwm
+  - adc16
+  - mcan
+vendor: hpmicro

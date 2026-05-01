@@ -1,0 +1,11 @@
+build/
+*.swp
+*.swo
+.DS_Store
+.vscode/
+.cache/
+.clangd/
+.clangd
+.claude/settings.local.json
+.build_sig/
+**.local.json

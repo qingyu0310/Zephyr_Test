@@ -1,0 +1,6 @@
+config TPC_MOTOR_CMD
+    default y
+    bool "Motor command channel"
+    select ZBUS
+    help
+        定义 MotorCMD zbus 通道，chassis 发布 → can_tx 订阅

@@ -1,0 +1,10 @@
+config PRJ_TEST
+    bool "Test project"
+    help
+        测试项目
+if PRJ_TEST
+rsource "projects/thread/Kconfig"
+endif
+
+
+source "Kconfig.zephyr"

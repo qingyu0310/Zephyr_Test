@@ -1,0 +1,51 @@
+rsource "../../topic/Kconfig"
+rsource "../../drivers/Kconfig"
+rsource "../../algorithm/Kconfig"
+rsource "../../modules/Kconfig"
+rsource "../../cmd/shell/Kconfig"
+
+config TRD_GPIO
+    default y
+    bool "GPIO thread task"
+    select DEV_GPIO
+    select CTL_TIMER
+    help
+        使能GPIO线程
+
+config TRD_CHASSIS
+    default y
+    bool "Chassis control thread"
+    select CTL_PID
+    select CTL_POWER
+    select FLT_LPF
+    select ID_RLS
+    select TPC_MOTOR_CMD
+
+    select DEV_MOTOR_DJI
+    select DEV_POWERMETER
+    select SHELL_PID
+    select SHELL_DBG
+
+    help
+        使能底盘控制线程
+
+config TRD_CAN_TX
+    default y
+    bool "CAN TX thread"
+    select COM_CAN
+    select TPC_MOTOR_CMD
+    help
+        使能CAN发送线程，订阅MotorCMD并发送CAN帧
+
+config USER_PRINTK
+    bool "UART console"
+    default y
+    select DRI_PRINTK
+    help
+        使能串口打印
+
+config USER_TEST_ADD
+    bool "user test add config"
+    default y
+    help
+        临时添加你想测试的config

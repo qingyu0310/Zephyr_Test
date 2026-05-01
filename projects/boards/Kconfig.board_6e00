@@ -1,0 +1,6 @@
+# Copyright (c) 2025 HPMicro
+# SPDX-License-Identifier: Apache-2.0
+
+config BOARD_BOARD_6E00
+	bool
+	select SOC_HPM6E80
