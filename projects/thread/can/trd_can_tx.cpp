@@ -12,23 +12,22 @@
 #include "trd_can_tx.hpp"
 #include <string.h>
 #include <zephyr/zbus/zbus.h>
-#include "motor_cmd.hpp"
+#include "chassis_to_can.hpp"
 
 using namespace instance::can;
 
 namespace thread::can {
 
+static const zbus_channel *chan = nullptr;
+static topic::chassis_to_can::Message msg{};
+static can_frame tx_frame{};
 
 static void Task(void*, void*, void*)
 {
-    const zbus_channel *chan;
-    motor_cmd_msg msg;
-    can_frame tx_frame;
-
     for (;;)
     {
-        zbus_sub_wait(&can_tx_sub, &chan, K_FOREVER);
-        zbus_chan_read(chan, &msg, K_NO_WAIT);
+        zbus_sub_wait(&sub_chassis_to_can, &chan, K_MSEC(10));
+        if (chan) { zbus_chan_read(chan, &msg, K_NO_WAIT); }
 
         (void)memset(&tx_frame, 0, sizeof(tx_frame));
         tx_frame.id  = msg.tx_id;

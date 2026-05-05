@@ -1,6 +1,13 @@
-config TPC_MOTOR_CMD
-    default y
-    bool "Motor command channel"
+config TPC_CHASSIS_TO_CAN
+    default n
+    bool "Chassis- CAN channel"
     select ZBUS
     help
-        定义 MotorCMD zbus 通道，chassis 发布 → can_tx 订阅
+        chassis 发布 → can_tx 订阅
+
+config TPC_REMOTE_TO
+    default n
+    bool "Remote channel"
+    select ZBUS
+    help
+        遥控器数据 zbus 通道

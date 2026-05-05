@@ -19,12 +19,15 @@ config TRD_CHASSIS
     select CTL_POWER
     select FLT_LPF
     select ID_RLS
-    select TPC_MOTOR_CMD
+
+    select TPC_CHASSIS_TO_CAN
+    select TPC_REMOTE_TO
 
     select DEV_MOTOR_DJI
     select DEV_POWERMETER
+
     select SHELL_PID
-    select SHELL_DBG
+    # select SHELL_DBG
 
     help
         使能底盘控制线程
@@ -33,7 +36,7 @@ config TRD_CAN_TX
     default y
     bool "CAN TX thread"
     select COM_CAN
-    select TPC_MOTOR_CMD
+    select TPC_CHASSIS_TO_CAN
     help
         使能CAN发送线程，订阅MotorCMD并发送CAN帧
 
@@ -46,6 +49,7 @@ config USER_PRINTK
 
 config USER_TEST_ADD
     bool "user test add config"
+    select DEV_REMOTE_DR16
     default y
     help
         临时添加你想测试的config

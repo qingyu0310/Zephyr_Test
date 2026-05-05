@@ -10,16 +10,17 @@
  */
 
 #include "trd_gpio.hpp"
+#include "thread.hpp"
 #include "output.hpp"
 // #include "input.hpp"
 #include "timer.hpp"
 
 #define GPIO_GET(node_id)   GPIO_DT_SPEC_GET(DT_NODELABEL(node_id), gpios)
 
-static Output led_r{};
-
 namespace thread::output {
 
+static Thread<> thread_{};
+static Output led_r{};
 
 static void Task(void*, void*, void*)
 {
@@ -52,6 +53,7 @@ void thread_start(uint8_t prio, void* p2, void* p3)
 
 namespace thread::input {
 
+static Thread<> thread_{};
 
 static void Task(void*, void*, void*)
 {

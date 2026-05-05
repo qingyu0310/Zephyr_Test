@@ -1,6 +1,0 @@
-board:
-  name: board_6e00
-  full_name: Custom HPM6E00 Board
-  vendor: hpmicro
-  socs:
-    - name: hpm6e80

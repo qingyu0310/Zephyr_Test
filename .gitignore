@@ -9,3 +9,5 @@ build/
 .claude/settings.local.json
 .build_sig/
 **.local.json
+
+zproject/

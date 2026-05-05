@@ -11,16 +11,14 @@
 
 #pragma once
 
-#include "thread.hpp"
+#include "stdint.h"
 
 namespace thread::output {
-    inline Thread<> thread_{};
     void thread_init();
     void thread_start(uint8_t prio = 5, void* p2 = nullptr, void* p3 = nullptr);
 };
 
 namespace thread::input {
-    inline Thread<> thread_{};
     void thread_init();
     void thread_start(uint8_t prio = 5, void* p2 = nullptr, void* p3 = nullptr);
 };

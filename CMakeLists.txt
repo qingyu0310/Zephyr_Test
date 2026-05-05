@@ -6,6 +6,12 @@ set(ACTIVE_PRJ "test" CACHE STRING "Active project")
 set(PROJ_DIR projects)
 set(CONFIG_SYM PRJ_TEST)
 
+# Board root for finding custom boards in this project
+set(BOARD_ROOT
+  ${CMAKE_CURRENT_SOURCE_DIR}/projects
+  CACHE PATH ""
+)
+
 set(DTC_OVERLAY_FILE ${CMAKE_CURRENT_SOURCE_DIR}/${PROJ_DIR}/boards/${BOARD}.overlay)
 
 find_package(Zephyr REQUIRED HINTS $ENV{ZEPHYR_BASE})
