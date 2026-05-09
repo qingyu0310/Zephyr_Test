@@ -12,7 +12,7 @@
 #include "trd_gpio.hpp"
 #include "thread.hpp"
 #include "output.hpp"
-// #include "input.hpp"
+#include "input.hpp"
 #include "timer.hpp"
 
 #define GPIO_GET(node_id)   GPIO_DT_SPEC_GET(DT_NODELABEL(node_id), gpios)

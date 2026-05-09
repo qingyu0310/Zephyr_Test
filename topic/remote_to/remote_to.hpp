@@ -1,13 +1,49 @@
 #pragma once
 
+#include <cstdint>
 #include <zephyr/zbus/zbus.h>
-#include "dr16.hpp"
 
 namespace topic::remote_to {
 
-using DR16Message = thread::remote::DR16Output;
+enum class ChassisMode : uint8_t
+{
+    Normal = 0,
+    Spin,
+    Follow,
+};
 
-} // namespace topic::remote_to
+enum class StartMode : uint8_t
+{
+    Off = 0,
+    On,
+};
 
-ZBUS_CHAN_DECLARE(pub_dr16_to);
-ZBUS_OBS_DECLARE(sub_dr16_to);
+struct Channel
+{
+    float chassisx  = 0.0f, chassisy  = 0.0f;
+    float pitch = 0.0f, yaw = 0.0f;
+};
+
+struct RemoteData 
+{
+    uint32_t version = 0;
+
+    /* 语义字段（归一化 [-1, 1]） */
+    float chassisx = 0.0f;
+    float chassisy = 0.0f;
+    float yaw      = 0.0f;
+    float pitch    = 0.0f;
+
+    /* 模式标志 */
+    ChassisMode chassis_mode = ChassisMode::Normal;
+
+    StartMode shoot_ctrl   = StartMode::Off;
+    StartMode reload_ctrl  = StartMode::Off;
+    StartMode autoaim_ctrl = StartMode::Off;
+    StartMode supercap_ctrl = StartMode::Off;
+};
+
+}
+
+ZBUS_CHAN_DECLARE(pub_remote_to);
+ZBUS_OBS_DECLARE(sub_remote_to);

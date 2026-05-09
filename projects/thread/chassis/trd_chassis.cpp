@@ -45,6 +45,7 @@ static Thread<> thread_{};                                              // chass
 
 static constexpr float   kTorqueK        = 0.3f;                        // C6xx 转矩常数 N·m/A
 static constexpr uint8_t kTotalBudget    = 20;                          // 底盘总功率预算 W
+static constexpr float   kChassisR       = 0.135f;                      // 舵轮距离底盘中心长度
 
 struct { float x, y; } static constexpr kWheelPos[N_Wheel] {
     {0.0f,  0.135f},                                          // 轮0: 前 (y = +R)
@@ -53,8 +54,8 @@ struct { float x, y; } static constexpr kWheelPos[N_Wheel] {
 static constexpr float KMaxMoveVelocity  = 2.0f;                        // 最大移动线速度
 static constexpr float KMaxRotationOmega = 2.0f;                        // 最大旋转角速度 (rad/s)
 
-static constexpr int8_t  kAngleSign[N_Wheel]  = {-1, -1};       // 舵向角度方向补偿 [前, 后]
-static constexpr int8_t  kSwerveSign[N_Wheel] = {-1, -1};       // 行进速度方向补偿 [前, 后]
+static constexpr int8_t kSteerSign[N_Wheel]  = {-1, -1};        // 舵向角度方向补偿 [前, 后]
+static constexpr int8_t kDriveSign[N_Wheel]  = {-1, -1};        // 行进速度方向补偿 [前, 后]
 
 static alg::power_ctrl::PowerCtrl SteerPwrCtrl{};                       // 转向电机功率控制器
 static alg::power_ctrl::PowerCtrl DrivePwrCtrl{};                       // 行进电机功率控制器
@@ -65,12 +66,12 @@ struct {
 } static g_wh_target[N_Wheel] {};                                       // 运动学输出
       
 static float g_k_factor[N_Wheel]    {};                                 // 优劣弧方向因子
-static float g_steer_target[N_Wheel] {};                                 // 优劣弧调整后角度
+static float g_steer_target[N_Wheel] {};                                // 优劣弧调整后角度
 static float g_vx = 0.0f, g_vy = 0.0f, g_vw = 0.0f;                     // 底盘速度指令
 
 static topic::chassis_to_can::Message msg_chassis_to_can {};            // topic 发送
 static const zbus_channel* chan = nullptr;                              // topic 接收
-static topic::remote_to::DR16Message msg_remote_to_chassis{};           // topic 接收
+static topic::remote_to::RemoteData msg_remote_to_chassis{};            // topic 接收
 
 /**
  * @brief N轮舵轮逆向运动学解算：V_wheel = V_chassis + ω × r_wheel
@@ -84,11 +85,11 @@ static void SwerveKinCalculate()
         const float spd = sqrtf(vx_w * vx_w + vy_w * vy_w);
 
         if (spd > 1e-6f) {
-            g_wh_target[wi].angle = kAngleSign[wi] * atan2f(vx_w, vy_w);
+            g_wh_target[wi].angle = kSteerSign[wi] * atan2f(vx_w, vy_w);
             g_wh_target[wi].angle = NormalizeAngle(g_wh_target[wi].angle);
         }
 
-        g_wh_target[wi].velocity = spd * kSwerveSign[wi];
+        g_wh_target[wi].velocity = spd * kDriveSign[wi];
     }
 }
 
@@ -116,12 +117,12 @@ static float OptimalArc(float current, float& target)
  */
 inline static void ReadRemote()
 {
-    zbus_sub_wait(&sub_dr16_to, &chan, K_NO_WAIT);
+    zbus_sub_wait(&sub_remote_to, &chan, K_NO_WAIT);
     if (chan) {
         zbus_chan_read(chan, &msg_remote_to_chassis, K_NO_WAIT);
-        g_vx = msg_remote_to_chassis.axis.x * KMaxMoveVelocity;
-        g_vy = msg_remote_to_chassis.axis.y * KMaxMoveVelocity;
-        g_vw = msg_remote_to_chassis.axis.yaw * KMaxRotationOmega;
+        g_vx = msg_remote_to_chassis.chassisx * KMaxMoveVelocity;
+        g_vy = msg_remote_to_chassis.chassisy * KMaxMoveVelocity;
+        g_vw = msg_remote_to_chassis.yaw * KMaxRotationOmega;
     }
 }
 

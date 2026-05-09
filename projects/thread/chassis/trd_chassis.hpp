@@ -39,8 +39,8 @@ namespace instance::chassis {
 
     constexpr uint16_t kSteerCanId[N_Wheel]   = {0x202, 0x204};
     constexpr uint16_t kDriveCanId[N_Wheel]   = {0x201, 0x203};
-    constexpr uint8_t  kDriveDataIdx[N_Wheel] = {static_cast<uint8_t>(kDriveCanId[0] - 0x201), static_cast<uint8_t>(kDriveCanId[1] - 0x201)};
     constexpr uint8_t  kSteerDataIdx[N_Wheel] = {static_cast<uint8_t>(kSteerCanId[0] - 0x201), static_cast<uint8_t>(kSteerCanId[1] - 0x201)};
+    constexpr uint8_t  kDriveDataIdx[N_Wheel] = {static_cast<uint8_t>(kDriveCanId[0] - 0x201), static_cast<uint8_t>(kDriveCanId[1] - 0x201)};
 
     struct WheelModule {
         DjiC6xx steer_motor{};

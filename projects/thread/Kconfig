@@ -49,7 +49,7 @@ config USER_PRINTK
 
 config USER_TEST_ADD
     bool "user test add config"
-    select DEV_REMOTE_DR16
+    select DEV_REMOTE
     default y
     help
         临时添加你想测试的config
