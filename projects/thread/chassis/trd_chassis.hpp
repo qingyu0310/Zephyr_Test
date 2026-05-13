@@ -15,45 +15,49 @@
 #include "pid.hpp"
 #include <cstdint>
 
-#define USE_POWERMETER      0
-
-#if USE_POWERMETER
+#if CONFIG_USE_POWERMETER
 #include "powermeter.hpp"
 #endif
 
 namespace thread::chassis {
     void thread_init();
-    void thread_start(uint8_t prio = 5, void* p2 = nullptr, void* p3 = nullptr);
+    void thread_start(uint8_t prio = 5);
 };
 
 namespace instance::chassis {
 
-    #if USE_POWERMETER
+    // 功率计 CAN 接收 ID
+    #if CONFIG_USE_POWERMETER
     constexpr uint16_t KSteerPwrMeterId = 0x01;
     constexpr uint16_t KDrivePwrMeterId = 0x02;
     inline PowerMeter  SteerPwrMeter {};
     inline PowerMeter  DrivePwrMeter {};
     #endif
 
-    constexpr uint8_t  N_Wheel = 2;
+    constexpr uint8_t  N_Wheel = 2;                                              // 舵轮数量
 
-    constexpr uint16_t kSteerCanId[N_Wheel]   = {0x202, 0x204};
-    constexpr uint16_t kDriveCanId[N_Wheel]   = {0x201, 0x203};
+    // CAN ID 映射（index 0=前轮, 1=后轮）
+    constexpr uint16_t kSteerCanId[N_Wheel]   = {0x202, 0x204};          // 转向电机ID
+    constexpr uint16_t kDriveCanId[N_Wheel]   = {0x201, 0x203};          // 驱动电机ID
+
+    // chassis_to_can 消息内的数据槽索引（CAN ID 偏移量）
     constexpr uint8_t  kSteerDataIdx[N_Wheel] = {static_cast<uint8_t>(kSteerCanId[0] - 0x201), static_cast<uint8_t>(kSteerCanId[1] - 0x201)};
     constexpr uint8_t  kDriveDataIdx[N_Wheel] = {static_cast<uint8_t>(kDriveCanId[0] - 0x201), static_cast<uint8_t>(kDriveCanId[1] - 0x201)};
 
+    // 单轮模块：转向 + 驱动
     struct WheelModule {
-        DjiC6xx steer_motor{};
-        DjiC6xx drive_motor{};
+        DjiC6xx steer_motor {};
+        DjiC6xx drive_motor {};
     };
 
+    // 单轮 PID：角度→力矩 / 速度→力矩 串联
     struct WheelPid {
-        alg::pid::Pid steer_angle{};
-        alg::pid::Pid steer_torque{};
-        alg::pid::Pid drive_velocity{};
-        alg::pid::Pid drive_torque{};
+        alg::pid::Pid steer_angle    {};
+        alg::pid::Pid steer_torque   {};
+        alg::pid::Pid drive_velocity {};
+        alg::pid::Pid drive_torque   {};
     };
 
-    inline WheelPid wheel_pid[N_Wheel] {};
+    inline WheelPid    wheel_pid[N_Wheel]     {};
     inline WheelModule chassis_wheel[N_Wheel] {};
 }

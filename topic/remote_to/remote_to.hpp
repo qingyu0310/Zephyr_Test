@@ -9,7 +9,6 @@ enum class ChassisMode : uint8_t
 {
     Normal = 0,
     Spin,
-    Follow,
 };
 
 enum class StartMode : uint8_t
@@ -37,10 +36,10 @@ struct RemoteData
     /* 模式标志 */
     ChassisMode chassis_mode = ChassisMode::Normal;
 
-    StartMode shoot_ctrl   = StartMode::Off;
-    StartMode reload_ctrl  = StartMode::Off;
-    StartMode autoaim_ctrl = StartMode::Off;
-    StartMode supercap_ctrl = StartMode::Off;
+    StartMode shoot_ctrl     = StartMode::Off;
+    StartMode reload_ctrl    = StartMode::Off;
+    StartMode autoaim_ctrl   = StartMode::Off;
+    StartMode supercap_ctrl  = StartMode::Off;
 };
 
 }

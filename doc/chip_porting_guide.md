@@ -475,3 +475,74 @@ set(DTC_OVERLAY_FILE ${CMAKE_CURRENT_SOURCE_DIR}/${PROJ_DIR}/boards/${BOARD}.ove
 - PLLCTL v1 (HPM5300): `hpm_pllctlv1_drv.h`
 - PLLCTL v2 (HPM6200+): `hpm_pllctlv2_drv.h`
 - `sysctl_config_cpu0_domain_clock` 参数个数不同
+
+---
+
+## 6. 附录：创建自定义 STM32 板
+
+当芯片变体没有自动生成的 pinctrl 时（如 STM32F407IGH6 176 脚 BGA），需手动创建板级定义。
+
+### 6.1 Board 目录
+
+```
+zephyr/boards/st/stm32f407igh6/
+├── stm32f407igh6.dts               # 主设备树
+├── stm32f407igh6-pinctrl.dtsi      # 引脚复用
+├── Kconfig.stm32f407igh6           # Kconfig.board
+├── stm32f407igh6_defconfig         # 默认配置
+├── stm32f407igh6.yaml              # 元数据
+├── board.yml
+├── board.cmake                     # 烧录器
+└── README.md                       # 标记为自定义
+```
+
+### 6.2 主 DTS
+
+```dts
+/dts-v1/;
+#include <st/f4/stm32f407Xg.dtsi>
+#include "stm32f407igh6-pinctrl.dtsi"
+
+/ {
+    model = "Custom STM32F407IGH6 board";
+    compatible = "st,stm32f407igh6";
+
+    chosen {
+        zephyr,sram = &sram0;
+        zephyr,flash = &flash0;
+        zephyr,ccm = &ccm0;
+    };
+    /* 板级设备... */
+};
+
+&dma1 { status = "okay"; };
+&dma2 { status = "okay"; };
+```
+
+### 6.3 pinctrl 文件
+
+include 路径用 `<dt-bindings/...>`，不带 `zephyr/` 前缀：
+
+```dts
+#include <dt-bindings/pinctrl/stm32-pinctrl.h>
+
+/ {
+    soc {
+        pinctrl: pin-controller@40020000 {
+            usart1_tx_pa9: usart1_tx_pa9 {
+                pinmux = <STM32_PINMUX('A', 9, AF7)>;
+            };
+        };
+    };
+};
+```
+
+**注意：** `STM32_PINMUX` 的第三个参数只传 `AF7`，不是 `STM32_AF7`（宏内部已拼接 `STM32_` 前缀）。
+
+### 6.4 构建
+
+```bash
+west build -b stm32f407igh6 -p
+```
+
+项目 overlay 命名需与 board 名一致（如 `stm32f407igh6.overlay`），`build.bat` 自动识别 board 名。

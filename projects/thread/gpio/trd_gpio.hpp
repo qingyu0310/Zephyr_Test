@@ -15,10 +15,10 @@
 
 namespace thread::output {
     void thread_init();
-    void thread_start(uint8_t prio = 5, void* p2 = nullptr, void* p3 = nullptr);
+    void thread_start(uint8_t prio = 5);
 };
 
 namespace thread::input {
     void thread_init();
-    void thread_start(uint8_t prio = 5, void* p2 = nullptr, void* p3 = nullptr);
+    void thread_start(uint8_t prio = 5);
 };

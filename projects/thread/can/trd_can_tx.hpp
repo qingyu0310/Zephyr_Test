@@ -11,19 +11,11 @@
 
 #pragma once
 
-#include "thread.hpp"
 #include "can.hpp"
 
-void mcan4_rx_callback_func(struct can_frame &frame, void *);
+void user_can1_rx_callback(struct can_frame &frame, void *);
 
 namespace thread::can {
-    inline Thread<> thread_{};
     void thread_init();
-    void thread_start(uint8_t prio = 5, void* p2 = nullptr, void* p3 = nullptr);
-};
-
-namespace instance::can {
-    inline Can mcan4{};
+    void thread_start(uint8_t prio = 5);
 }
-
-

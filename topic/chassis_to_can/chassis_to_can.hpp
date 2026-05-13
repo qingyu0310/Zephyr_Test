@@ -7,9 +7,9 @@
 namespace topic::chassis_to_can {
 
 struct Message {
-    uint8_t can_id = CanIndex::CAN1;
-    uint16_t tx_id = 0x200;
-    uint8_t data[8]{};
+    uint8_t can_id  = CanIndex::CAN_1;
+    uint16_t tx_id  = 0x200;
+    uint8_t data[8] {};
 
     static constexpr float kCurrentScale    = 16384.0f / 20.0f;
     static constexpr float kCurrentScaleInv = 20.0f / 16384.0f;

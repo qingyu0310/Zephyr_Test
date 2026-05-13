@@ -11,7 +11,17 @@
 
 #pragma once
 
+#ifdef __cplusplus
+extern "C" {
+#endif 
+
 void System_Bsp_Init();
 void System_Modules_Init();
 void System_Thread_Start();
+
+#ifdef __cplusplus
+}
+#endif
+
+
 

@@ -24,7 +24,7 @@ static Output led_r{};
 
 static void Task(void*, void*, void*)
 {
-    Timer timer_(1000 / 2);
+    Timer timer_(1000);
 
     for (;;)
     {
@@ -34,20 +34,19 @@ static void Task(void*, void*, void*)
             led_r.Toggle();
         });
 
-        k_msleep(2);
+        k_msleep(1);
     }
 }
 
 void thread_init()
 {
-    led_r.init(GPIO_GET(led_r));
+    led_r.init(GPIO_GET(led_alert));
 }
 
-void thread_start(uint8_t prio, void* p2, void* p3)
+void thread_start(uint8_t prio)
 {
-    thread_.Start(Task, prio, nullptr, p2, p3);
+    thread_.Start(Task, prio);
 }
-
 
 } // namespace thread::output
 
@@ -55,11 +54,12 @@ namespace thread::input {
 
 static Thread<> thread_{};
 
+/*  占位：预留用于按键/传感器输入，待实现  */
 static void Task(void*, void*, void*)
 {
     for (;;)
     {
-        k_msleep(2);
+        k_msleep(100);
     }
 }
 
@@ -68,7 +68,7 @@ void thread_init()
     
 }
 
-void thread_start(uint8_t prio, void* p2, void* p3)
+void thread_start(uint8_t prio)
 {
     thread_.Start(Task, prio);
 }

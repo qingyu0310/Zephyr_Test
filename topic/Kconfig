@@ -1,3 +1,8 @@
+# topic/Kconfig — 线程间数据通道
+# 基于 zbus 定义模块间通信的 topic（发布/订阅）
+# 每一对 config 定义一个 topic，select ZBUS
+# 头文件在 topic/ 下
+
 config TPC_CHASSIS_TO_CAN
     default n
     bool "Chassis- CAN channel"

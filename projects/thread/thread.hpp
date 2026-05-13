@@ -23,10 +23,10 @@ template<uint32_t StackSize = 1024>
 class Thread final
 {
 public:
-    void Start(k_thread_entry_t entry, int prio = 5, void* p1 = nullptr, void* p2 = nullptr, void* p3 = nullptr)
+    void Start(k_thread_entry_t entry, int prio = 5, void* p1 = nullptr)
     {
         k_thread_create(&thread_, stack_, K_THREAD_STACK_SIZEOF(stack_),
-                        entry, p1, p2, p3, prio, 0, K_NO_WAIT);
+                        entry, p1, nullptr, nullptr, prio, 0, K_NO_WAIT);
     }
 
 private:

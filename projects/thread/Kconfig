@@ -1,9 +1,15 @@
-rsource "../../topic/Kconfig"
+# projects/thread/Kconfig — 线程与项目配置（应用层）
+# 统一 rsource 所有子模块的 Kconfig
+# 定义 TRD_* 线程开关、USE_* 功能开关、USER_* 调试开关
+# 每个 TRD_* 负责 select 其所依赖的子模块 config，不依赖 prj.conf 手动配置
+
 rsource "../../drivers/Kconfig"
 rsource "../../algorithm/Kconfig"
 rsource "../../modules/Kconfig"
+rsource "../../topic/Kconfig"
 rsource "../../cmd/shell/Kconfig"
 
+# gpio线程 翻转led灯，用来反应代码是否运行
 config TRD_GPIO
     default y
     bool "GPIO thread task"
@@ -12,26 +18,31 @@ config TRD_GPIO
     help
         使能GPIO线程
 
+
+# chassis线程
 config TRD_CHASSIS
     default y
     bool "Chassis control thread"
-    select CTL_PID
-    select CTL_POWER
-    select FLT_LPF
-    select ID_RLS
+    select MOD_CTL_POWER
+    select MOD_DEV_MOTOR_DJI
 
     select TPC_CHASSIS_TO_CAN
     select TPC_REMOTE_TO
-
-    select DEV_MOTOR_DJI
-    select DEV_POWERMETER
-
-    select SHELL_PID
-    # select SHELL_DBG
-
+    
     help
         使能底盘控制线程
 
+# 是否开启功率计
+config USE_POWERMETER
+    bool "Power meter"
+    depends on TRD_CHASSIS
+    default n
+    select MOD_DEV_POWERMETER
+    help
+        使能功率计（依赖底盘线程开启）
+
+
+# can发送线程
 config TRD_CAN_TX
     default y
     bool "CAN TX thread"
@@ -40,16 +51,18 @@ config TRD_CAN_TX
     help
         使能CAN发送线程，订阅MotorCMD并发送CAN帧
 
-config USER_PRINTK
-    bool "UART console"
+# remote线程
+config TRD_REMOTE
     default y
-    select DRI_PRINTK
+    bool "Remote thread"
+    select MOD_DEV_REMOTE
     help
-        使能串口打印
+        使能遥控线程
 
+# 用户添加测试
 config USER_TEST_ADD
-    bool "user test add config"
-    select DEV_REMOTE
     default y
+    bool "user's test add config"
+    select COM_UART_DMA
     help
         临时添加你想测试的config
