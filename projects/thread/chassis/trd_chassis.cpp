@@ -33,8 +33,22 @@
  *   轮0 (前):  y = +R
  *   轮1 (后):  y = -R
  *
- * @copyright Copyright (c) 2026
+ * ## 待实测的机械参数
  *
+ * 以下值当前为占位符，需根据实际底盘测量后修正：
+ *
+ * | 参数 | 当前值 | 说明 | 备注 |
+ * |------|--------|------|------|
+ * | kChassisR | 0.135m | 舵轮距底盘中心距离 | 需实测 |
+ * | kWheelR | 0.1m | 轮子半径 | 需实测 |
+ * | kGearboxRatio | 3591/187 | 减速比 | M3508 官方数据，已确认 |
+ * | KMaxMoveVelocity | 0.5m/s | 最大移动速度 | 调参确定 |
+ * | KMaxRotationOmega | 2.0rad/s | 最大自旋角速度 | 调参确定 |
+ * | kTorqueK | 0.3 N·m/A | C620 转矩常数 | 手册数据，已确认 |
+ * | kSteerSign | -1 | 舵向方向补偿 | 电机安装方向确认后锁定 |
+ * | kDriveSign | +1/-1 | 行进方向补偿 | 电机安装方向确认后锁定 |
+ *
+ * @copyright Copyright (c) 2026
  */
 
 #include "trd_chassis.hpp"
@@ -340,20 +354,24 @@ void thread_init()
             constexpr float kWheelR       = 0.1f;
             constexpr float kGearboxRatio = 3591.f / 187.f;
 
-            DjiC6xx::Config motor_cfg{};
+            DjiC6xx::Config motor_cfg {};
             motor_cfg.rx_id         = kSteerCanId[wi];
             motor_cfg.wheel_r       = kWheelR;
             motor_cfg.gearbox_ratio = kGearboxRatio;
 
-            alg::pid::Pid::Config angle_cfg{};
-            angle_cfg.kp = 1.0f;
+            alg::pid::Pid::Config angle_cfg {};
+            angle_cfg.kp  = 1.0f;
+            angle_cfg.ki  = 0.0f;
+            angle_cfg.kd  = 0.0f;
 
             alg::pid::Pid::Config torque_cfg{};
             torque_cfg.kp = 0.2f;
+            torque_cfg.ki = 0.0f;
+            torque_cfg.kd = 0.0f;
 
             chassis_wheel[wi].steer_motor.Init(motor_cfg);
-            wheel_pid[wi].steer_angle. Init(angle_cfg);
-            wheel_pid[wi].steer_torque.Init(torque_cfg);
+            wheel_pid[wi].steer_angle    .Init(angle_cfg);
+            wheel_pid[wi].steer_torque   .Init(torque_cfg);
         }
 
         // 行进组
@@ -361,20 +379,24 @@ void thread_init()
             constexpr float kWheelR       = 0.1f;
             constexpr float kGearboxRatio = 3591.f / 187.f;
 
-            DjiC6xx::Config motor_cfg{};
+            DjiC6xx::Config motor_cfg {};
             motor_cfg.rx_id         = kDriveCanId[wi];
             motor_cfg.wheel_r       = kWheelR;
             motor_cfg.gearbox_ratio = kGearboxRatio;
 
-            alg::pid::Pid::Config speed_cfg{};
-            speed_cfg.kp = 5.0f;
+            alg::pid::Pid::Config speed_cfg {};
+            speed_cfg.kp  = 5.0f;
+            speed_cfg.ki  = 0.0f;
+            speed_cfg.kd  = 0.0f;
 
             alg::pid::Pid::Config torque_cfg{};
             torque_cfg.kp = 0.5f;
+            torque_cfg.ki = 0.0f;
+            torque_cfg.kd = 0.0f;
 
             chassis_wheel[wi].drive_motor.Init(motor_cfg);
-            wheel_pid[wi].drive_velocity.Init(speed_cfg);
-            wheel_pid[wi].drive_torque.  Init(torque_cfg);
+            wheel_pid[wi].drive_velocity .Init(speed_cfg);
+            wheel_pid[wi].drive_torque   .Init(torque_cfg);
         }
     }
 }

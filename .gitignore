@@ -4,10 +4,9 @@
 .DS_Store
 .vscode/
 .cache/
+.claude/
 .clangd/
 .clangd
 .claude/settings.local.json
 .build_sig/
 **.local.json
-
-zproject/
