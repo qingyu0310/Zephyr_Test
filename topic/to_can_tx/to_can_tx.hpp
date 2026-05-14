@@ -14,6 +14,8 @@
 #include <stdint.h>
 #include <zephyr/kernel.h>
 
+extern struct k_msgq user_can1_msgq;
+
 namespace topic::to_can_tx {
 
 struct Message {
@@ -21,6 +23,7 @@ struct Message {
     uint8_t  data[8];
 };
 
-} // namespace topic::to_can_tx
+constexpr auto *chassis = &user_can1_msgq;    // 底盘 CAN（换总线只改这里）
+constexpr auto *gimbal  = &user_can1_msgq;    // 云台 CAN
 
-extern struct k_msgq user_can1_msgq;
+} // namespace topic::to_can_tx

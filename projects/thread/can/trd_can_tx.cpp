@@ -17,6 +17,8 @@
 
 namespace thread::can {
 
+// k_msgq vs zbus：zbus 多个发布者共用一个 channel 会互相覆盖；
+// k_msgq 内部拷贝数据，多 put 一 get 天然支持多发布者，且满时丢帧不阻塞。
 static Thread<> thread_{};
 static Can user_can1{};
 

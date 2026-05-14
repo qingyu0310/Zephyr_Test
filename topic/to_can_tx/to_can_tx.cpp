@@ -12,4 +12,4 @@
 #include <zephyr/kernel.h>
 #include "to_can_tx.hpp"
 
-K_MSGQ_DEFINE(user_can1_msgq, sizeof(topic::to_can_tx::Message), 4, 4);   // 深度 4，4 字节对齐，满时 K_NO_WAIT 直接丢帧
+K_MSGQ_DEFINE(user_can1_msgq, sizeof(topic::to_can_tx::Message), 16, 4);  // 深度 16，4 字节对齐，满时 K_NO_WAIT 直接丢帧

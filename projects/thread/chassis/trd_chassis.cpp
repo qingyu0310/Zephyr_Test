@@ -84,11 +84,12 @@ using namespace instance::chassis;
 static Thread<> thread_{};
 
 // 电机参数
-static constexpr float   kTorqueK           = 0.3f;               // C6xx 转矩常数 N·m/A
-static constexpr float   kCurrentScale      = 16384.0f / 20.0f;   // 电流缩放系数
+static constexpr float    kTorqueK          = 0.3f;               // C6xx 转矩常数 N·m/A
+static constexpr float    kCurrentScale     = 16384.0f / 20.0f;   // 电流缩放系数
 
-static constexpr uint8_t kTotalBudget       = 20;                 // 底盘总功率预算 W
-static constexpr float   kChassisR          = 0.135f;             // 舵轮距车体中心距离
+static constexpr uint8_t  kTotalBudget      = 20;                 // 底盘总功率预算 W
+static constexpr float    kChassisR         = 0.135f;             // 舵轮距车体中心距离
+static constexpr uint16_t kChassisTxId      = 0x200;              // 底盘can发送id
 
 // 舵轮位置（右手系）
 static constexpr struct { float x, y; } kWheelPos[N_Wheel] = {
@@ -273,8 +274,8 @@ static void FramePublish()
         set_out(kDriveDataIdx[wi], DrivePwrCtrl.GetLimitedCurrent(wi));
     }
 
-    msg.tx_id = 0x200;
-    k_msgq_put(&user_can1_msgq, &msg, K_NO_WAIT);
+    msg.tx_id = kChassisTxId;
+    k_msgq_put(topic::to_can_tx::chassis, &msg, K_NO_WAIT);
 }
 
 /**

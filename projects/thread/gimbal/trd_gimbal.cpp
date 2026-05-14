@@ -16,7 +16,9 @@
 #include "to_can_tx.hpp"
 #include "remote_to.hpp"
 #include "zephyr/kernel.h"
+#include "zephyr/sys/printk.h"
 #include "zephyr/zbus/zbus.h"
+#include "timer.hpp"
 
 namespace thread::gimbal {
 
@@ -34,10 +36,13 @@ static float g_pitch_radian = 0.0f;
 
 static void Task(void*, void*, void*)
 {
+    Timer timer (1000);
     topic::to_can_tx::Message msg{};
 
     for (;;)
     {
+        timer.Update();
+
         const zbus_channel *chan = nullptr;
         zbus_sub_wait(&sub_remote_to, &chan, K_NO_WAIT);
         if (chan) {
@@ -55,30 +60,37 @@ static void Task(void*, void*, void*)
                 case DmErrorStatus::Enable:
                 {
                     // 外环：角度 → 角速度
-                    byaw_ctrl_.position.SetTarget(g_byaw_radian);
-                    byaw_ctrl_.position.SetNow(snap.radian);
-                    const float omega_ref = byaw_ctrl_.position.CalcAngle();
+                    const float diff = g_byaw_radian - snap.radian;
+                    byaw_ctrl_.position.SetTarget(0);
+                    byaw_ctrl_.position.SetNow(-diff);
+                    const float omega_ref = byaw_ctrl_.position.Calc();
 
                     // 内环：角速度 → 转矩
                     byaw_ctrl_.omega.SetTarget(omega_ref);
                     byaw_ctrl_.omega.SetNow(snap.omega);
                     const float tor_ref = byaw_ctrl_.omega.Calc();
 
-                    byaw_.SetTargetRad(g_byaw_radian);
                     byaw_.SetTargetTor(tor_ref);
                     byaw_.CtrlData(msg.data);
                     msg.tx_id = byaw_.GetTxId();
 
-                    k_msgq_put(&user_can1_msgq, &msg, K_NO_WAIT);
+                    printk("%f,%f\n", (double)diff, (double)tor_ref);
+
+                    k_msgq_put(topic::to_can_tx::gimbal, &msg, K_NO_WAIT);
 
                     break;
                 }
                 case DmErrorStatus::Disable:
                 {
-                    msg.tx_id = byaw_.GetTxId();
-                    byaw_.EnableData(msg.data);
+                    timer.Update();
 
-                    k_msgq_put(&user_can1_msgq, &msg, K_NO_WAIT);
+                    timer.Clock([&]()
+                    {
+                        msg.tx_id = byaw_.GetTxId();
+                        byaw_.EnableData(msg.data);
+
+                        k_msgq_put(topic::to_can_tx::gimbal, &msg, K_NO_WAIT);
+                    });
 
                     break;
                 }
@@ -100,14 +112,14 @@ void thread_init()
         position_cfg.kd  = 0.0f;
 
         alg::pid::Pid::Config omega_cfg{};
-        omega_cfg.kp = 0.2f;
+        omega_cfg.kp = 0.02f;
         omega_cfg.ki = 0.0f;
         omega_cfg.kd = 0.0f;
 
         DmMotor::Config cfg {
             .ctrl_met       = ControlMethon::Mit,
-            .can_id         = 0x01,
-            .master_id      = 0x00,
+            .can_id         = kBYawCanId,
+            .master_id      = kBYawMasterId,
             .gearbox_ratio  = 1.0f,
             .wheel_r        = 1,
             .kp             = 0.0f,
