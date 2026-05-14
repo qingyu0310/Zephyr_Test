@@ -59,5 +59,5 @@ namespace instance::chassis {
     };
 
     inline WheelPid    wheel_pid[N_Wheel]     {};
-    inline WheelModule chassis_wheel[N_Wheel] {};
+    inline WheelModule chassis_wheel[N_Wheel] {}; 
 }

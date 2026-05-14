@@ -26,9 +26,9 @@ config TRD_CHASSIS
     select MOD_CTL_POWER
     select MOD_DEV_MOTOR_DJI
 
-    select TPC_CHASSIS_TO_CAN
+    select TPC_TO_CAN_TX
     select TPC_REMOTE_TO
-    
+
     help
         使能底盘控制线程
 
@@ -42,14 +42,25 @@ config USE_POWERMETER
         使能功率计（依赖底盘线程开启）
 
 
+# gimbal线程
+config TRD_GIMBAL
+    default y
+    bool "Gimbal control thread"
+    select MOD_DEV_MOTOR_DM
+    select TPC_TO_CAN_TX
+    select TPC_REMOTE_TO
+
+    help
+        使能云台控制线程
+
 # can发送线程
 config TRD_CAN_TX
     default y
     bool "CAN TX thread"
     select COM_CAN
-    select TPC_CHASSIS_TO_CAN
+    select TPC_TO_CAN_TX
     help
-        使能CAN发送线程，订阅MotorCMD并发送CAN帧
+        使能CAN发送线程，从消息队列取帧发送
 
 # remote线程
 config TRD_REMOTE
@@ -59,10 +70,11 @@ config TRD_REMOTE
     help
         使能遥控线程
 
+
+
 # 用户添加测试
 config USER_TEST_ADD
     default y
     bool "user's test add config"
-    select COM_UART_DMA
     help
         临时添加你想测试的config

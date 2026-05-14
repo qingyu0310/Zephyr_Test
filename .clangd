@@ -1,0 +1,25 @@
+CompileFlags:
+  CompilationDatabase: build/
+  Add:
+    - -ferror-limit=0
+    - -Wno-unused-variable
+    - -isystem
+    - D:/Zephyr/zephyr-sdk-0.16.8/arm-zephyr-eabi/lib/gcc/arm-zephyr-eabi/12.2.0/include
+  Remove:
+    - -mabi=*
+    - -march=*
+    - -mcpu=*
+    - -mfp16-format=*
+    - --specs=*
+    - -fno-printf-return-value
+    - --param=*
+    - -fmacro-prefix-map=*
+    - -fno-reorder-functions
+    - -ftls-model=*
+    - -mno-relax
+
+Diagnostics:
+  Suppress:
+    - drv_unknown_argument
+    - unknown_warning_option
+    - unused_variable

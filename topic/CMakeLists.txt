@@ -1,6 +1,6 @@
-if(CONFIG_TPC_CHASSIS_TO_CAN)
-    target_include_directories(app PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/chassis_to_can)
-    target_sources(app PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/chassis_to_can/chassis_to_can.cpp)
+if(CONFIG_TPC_TO_CAN_TX)
+    target_include_directories(app PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/to_can_tx)
+    target_sources(app PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/to_can_tx/to_can_tx.cpp)
 endif()
 
 if(CONFIG_TPC_REMOTE_TO)

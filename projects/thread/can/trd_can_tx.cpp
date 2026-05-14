@@ -11,32 +11,27 @@
 
 #include "trd_can_tx.hpp"
 #include <zephyr/drivers/gpio.h>
-#include "chassis_to_can.hpp"
+#include "to_can_tx.hpp"
 #include "thread.hpp"
 #include <string.h>
-#include <zephyr/zbus/zbus.h>
 
 namespace thread::can {
 
 static Thread<> thread_{};
-static const zbus_channel *chan = nullptr;
-static topic::chassis_to_can::Message msg{};
-static can_frame tx_frame{};
-
-static Can can1{};
+static Can user_can1{};
 
 static void Task(void*, void*, void*)
 {
+    can_frame tx{};
+    topic::to_can_tx::Message msg{};
+
     for (;;)
     {
-        zbus_sub_wait(&sub_chassis_to_can, &chan, K_FOREVER);
-        zbus_chan_read(chan, &msg, K_NO_WAIT);
-
-        tx_frame.id  = msg.tx_id;
-        tx_frame.dlc = 8;
-        memcpy(tx_frame.data, msg.data, 8);
-
-        can1.Send(&tx_frame);
+        k_msgq_get(&user_can1_msgq, &msg, K_FOREVER);
+        tx.id  = msg.tx_id;
+        tx.dlc = 8;
+        memcpy(tx.data, msg.data, 8);
+        user_can1.Send(&tx);
     }
 }
 
@@ -47,17 +42,11 @@ void thread_init()
         if (device_is_ready(stby.port)) {
             gpio_pin_configure_dt(&stby, GPIO_OUTPUT_LOW);
         }
-        const device* can_dev   = DEVICE_DT_GET(DT_ALIAS(user_can1));
-        if (!device_is_ready(can_dev)) {
-            return;
-        }
-        const can_filter filter {
-            .id    = 0,
-            .mask  = 0,
-            .flags = 0,
-        };
-        can1.Init(can_dev, filter);
-        can1.SetRxCallback(user_can1_rx_callback);
+        const device* dev = DEVICE_DT_GET(DT_ALIAS(user_can1));
+        if (!device_is_ready(dev)) return;
+        const can_filter filter { .id = 0, .mask = 0, .flags = 0 };
+        user_can1.Init(dev, filter);
+        user_can1.SetRxCallback(user_can1_rx_callback);
     }
 }
 

@@ -2,7 +2,7 @@
 #include "remote_to.hpp"
 
 ZBUS_CHAN_DEFINE(pub_remote_to,
-                 topic::remote_to::RemoteData,
+                 topic::remote_to::Message,
                  NULL,
                  NULL,
                  ZBUS_OBSERVERS(sub_remote_to),

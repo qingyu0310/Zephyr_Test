@@ -1,0 +1,43 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Debug STM32",
+            "type": "cortex-debug",
+            "request": "launch",
+            "servertype": "openocd",
+            "executable": "${workspaceFolder}/build/zephyr/zephyr.elf",
+            "serverpath": "C:/Program Files/Path/openocd/bin/openocd.exe",
+            "gdbPath": "D:/Zephyr/zephyr-sdk-0.16.8/arm-zephyr-eabi/bin/arm-zephyr-eabi-gdb.exe",
+            "runToEntryPoint": "main",
+            "configFiles": [
+                "${workspaceFolder}/projects/boards/st/puzhong/openocd.cfg"
+            ],
+            "searchDir": [
+                "C:/Program Files/Path/openocd/share/openocd/scripts"
+            ]
+        },
+        {
+            "name": "Debug HPM",
+            "type": "cortex-debug",
+            "request": "launch",
+            "servertype": "openocd",
+            "executable": "${workspaceFolder}/build/zephyr/zephyr.elf",
+            "serverpath": "D:/Zephyr_HPMicro/sdk_env/tools/openocd/openocd.exe",
+            "gdbPath": "D:/Zephyr_HPMicro/sdk_env/toolchains/rv32imac_zicsr_zifencei_multilib_b_ext-win/bin/riscv32-unknown-elf-gdb.exe",
+            "runToEntryPoint": "main",
+            "showDevDebugOutput": "none",
+            "configFiles": [
+                "probes/cmsis_dap.cfg",
+                "soc/hpm6e80-single-core.cfg",
+                "boards/hpm6e00evk.cfg"
+            ],
+            "searchDir": [
+                "D:/Zephyr_HPMicro/sdk_env/hpm_sdk/boards/openocd"
+            ],
+            "openOCDLaunchCommands": [
+                "adapter speed 1000"
+            ]
+        }
+    ]
+}

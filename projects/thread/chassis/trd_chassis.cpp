@@ -54,7 +54,7 @@
 #include "trd_chassis.hpp"
 #include "remote_to.hpp"
 #include "thread.hpp"
-#include "chassis_to_can.hpp"
+#include "to_can_tx.hpp"
 #include "power_ctrl.hpp"
 #include "pid.hpp"
 #include "zephyr/zbus/zbus.h"
@@ -85,6 +85,8 @@ static Thread<> thread_{};
 
 // 电机参数
 static constexpr float   kTorqueK           = 0.3f;               // C6xx 转矩常数 N·m/A
+static constexpr float   kCurrentScale      = 16384.0f / 20.0f;   // 电流缩放系数
+
 static constexpr uint8_t kTotalBudget       = 20;                 // 底盘总功率预算 W
 static constexpr float   kChassisR          = 0.135f;             // 舵轮距车体中心距离
 
@@ -114,11 +116,6 @@ static float g_steer_target[N_Wheel] {};                          // 优劣弧�
 // 底盘速度指令
 static float g_vx = 0.0f, g_vy = 0.0f, g_vw = 0.0f;
 
-// zbus 通信
-static topic::chassis_to_can::Message msg_chassis_to_can {};
-static const zbus_channel* chan = nullptr;
-static topic::remote_to::RemoteData msg_remote_to_chassis {};
-
 /**
  * @brief 优劣弧判断
  *
@@ -146,12 +143,15 @@ static float OptimalArc(float current, float& target)
  */
 static void ReadRemote()
 {
+    static topic::remote_to::Message msg{};
+    const zbus_channel *chan = nullptr;
+
     zbus_sub_wait(&sub_remote_to, &chan, K_NO_WAIT);
     if (chan) {
-        zbus_chan_read(chan, &msg_remote_to_chassis, K_NO_WAIT);
-        g_vx = msg_remote_to_chassis.chassisx  * KMaxMoveVelocity;
-        g_vy = msg_remote_to_chassis.chassisy  * KMaxMoveVelocity;
-        g_vw = (msg_remote_to_chassis.chassis_mode == topic::remote_to::ChassisMode::Spin) ? KMaxRotationOmega : 0.0f;
+        zbus_chan_read(chan, &msg, K_NO_WAIT);
+        g_vx =  msg.chassisx  * KMaxMoveVelocity;
+        g_vy =  msg.chassisy  * KMaxMoveVelocity;
+        g_vw = (msg.chassis_mode == topic::remote_to::ChassisMode::Spin) ? KMaxRotationOmega : 0.0f;
     }
 }
 
@@ -206,7 +206,7 @@ static void ControlCalculate()
 
             wheel_pid[wi].steer_angle.SetTarget(g_steer_target[wi]);
             wheel_pid[wi].steer_angle.SetNow(chassis_angle);
-            const float torque_ref  = wheel_pid[wi].steer_angle.CalcAngle();
+            const float torque_ref  = wheel_pid[wi].steer_angle. CalcAngle();
             const float current_ref = wheel_pid[wi].steer_torque.Calc(torque_ref, snap.torque) / kTorqueK;
             SteerPwrCtrl.SetTarget(wi, current_ref);
             SteerPwrCtrl.SetMotorData(wi, snap.torque, snap.omega, wheel_pid[wi].steer_angle.GetError());
@@ -220,7 +220,7 @@ static void ControlCalculate()
             wheel_pid[wi].drive_velocity.SetTarget(chassis_velocity);
             wheel_pid[wi].drive_velocity.SetNow(snap.velocity);
             const float torque_ref  = wheel_pid[wi].drive_velocity.Calc();
-            const float current_ref = wheel_pid[wi].drive_torque.Calc(torque_ref, snap.torque) / kTorqueK;
+            const float current_ref = wheel_pid[wi].drive_torque.  Calc(torque_ref, snap.torque) / kTorqueK;
             DrivePwrCtrl.SetTarget(wi, current_ref);
             DrivePwrCtrl.SetMotorData(wi, snap.torque, snap.omega, wheel_pid[wi].drive_velocity.GetError());
         }
@@ -245,13 +245,14 @@ static void PowerAlloc()
     DrivePwrCtrl.Predict();
 
     constexpr float kTurnRatio = 0.8f;
-    constexpr float turnMax = kTotalBudget * kTurnRatio;
+    constexpr float kSteerMax = kTotalBudget * kTurnRatio;
 
-    const float turnPred = SteerPwrCtrl.GetTotalPower();
-    SteerPwrCtrl.Allocate(turnMax);
+    const float SteerPred = SteerPwrCtrl.GetTotalPower();
+    SteerPwrCtrl.Allocate(kSteerMax);               // 转向分配上限 80%，超出部分截断
 
-    const float runBudget = kTotalBudget - MIN(turnPred, turnMax);
-    DrivePwrCtrl.Allocate(runBudget);
+    // 余额全部分给行进（转向未用满的余量也流入行进）
+    const float DriveBudget = kTotalBudget - MIN(SteerPred, kSteerMax);
+    DrivePwrCtrl.Allocate(DriveBudget);
 }
 
 /**
@@ -259,13 +260,21 @@ static void PowerAlloc()
  */
 static void FramePublish()
 {
+    topic::to_can_tx::Message msg{};
+
+    auto set_out = [&](uint8_t idx, float current_A) {
+        int16_t raw = static_cast<int16_t>(current_A * kCurrentScale);
+        msg.data[idx * 2 + 0] = static_cast<uint8_t>(raw >> 8);
+        msg.data[idx * 2 + 1] = static_cast<uint8_t>(raw & 0xFF);
+    };
     for (uint8_t wi = 0; wi < N_Wheel; wi++)
     {
-        msg_chassis_to_can.SetOut(kSteerDataIdx[wi], SteerPwrCtrl.GetLimitedCurrent(wi));
-        msg_chassis_to_can.SetOut(kDriveDataIdx[wi], DrivePwrCtrl.GetLimitedCurrent(wi));
+        set_out(kSteerDataIdx[wi], SteerPwrCtrl.GetLimitedCurrent(wi));
+        set_out(kDriveDataIdx[wi], DrivePwrCtrl.GetLimitedCurrent(wi));
     }
 
-    zbus_chan_pub(&pub_chassis_to_can, &msg_chassis_to_can, K_MSEC(1));
+    msg.tx_id = 0x200;
+    k_msgq_put(&user_can1_msgq, &msg, K_NO_WAIT);
 }
 
 /**

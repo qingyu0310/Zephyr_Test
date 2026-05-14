@@ -1,0 +1,52 @@
+{
+    "terminal.integrated.env.windows": {
+        "ZEPHYR_BASE": "D:\\Zephyr\\zephyr",
+        "SDK_GLUE_DIR": "D:\\Zephyr_HPMicro\\sdk_glue",
+        "ZEPHYR_SDK_GLUE_MODULE_DIR": "D:\\Zephyr_HPMicro\\sdk_glue",
+        "ZEPHYR_SDK_INSTALL_DIR": "D:\\Zephyr\\zephyr-sdk-0.16.8",
+        "ZEPHYR_TOOLCHAIN_VARIANT": "zephyr",
+        "VIRTUAL_ENV": "D:\\Zephyr_HPMicro\\.venv",
+        "PATH": "D:\\Zephyr_HPMicro\\.venv\\Scripts;${env:PATH}"
+    },
+
+    "python.defaultInterpreterPath": "D:\\Zephyr_HPMicro\\.venv\\Scripts\\python.exe",
+    "python.terminal.activateEnvironment": true,
+    "terminal.integrated.profiles.windows": {
+        "Zephyr Shell": {
+            "path": "powershell.exe",
+            "args": [
+                "-NoExit",
+                "-Command",
+                "& 'D:\\Zephyr_HPMicro\\.venv\\Scripts\\Activate.ps1'; $env:ZEPHYR_BASE='D:\\Zephyr\\zephyr'; $env:ZEPHYR_SDK_INSTALL_DIR='D:\\Zephyr\\zephyr-sdk-0.16.8'; $env:ZEPHYR_TOOLCHAIN_VARIANT='zephyr'; Write-Host '[Zephyr venv activated]' -ForegroundColor Green"
+
+            ]
+        }
+    },
+    "terminal.integrated.defaultProfile.windows": "Zephyr Shell",
+
+    "clangd.path": "C:\\Users\\33527\\AppData\\Roaming\\Code\\User\\globalStorage\\llvm-vs-code-extensions.vscode-clangd\\install\\21.1.0\\clangd_21.1.0\\bin\\clangd.exe",
+    "clangd.arguments": [
+        "--background-index",
+        "--clang-tidy",
+        "--header-insertion=iwyu",
+        "--completion-style=detailed",
+        "--query-driver=D:/Zephyr/zephyr-sdk-0.16.8/arm-zephyr-eabi/bin/arm-zephyr-eabi-g++.exe,D:/Zephyr/zephyr-sdk-0.16.8/riscv64-zephyr-elf/bin/riscv64-zephyr-elf-g++.exe",
+        "--compile-commands-dir=.",
+        "--log=verbose"
+    ], 
+
+    "cortex-debug.openocdPath.windows": "D:/Zephyr_HPMicro/sdk_env/tools/openocd_backup/openocd.exe",
+
+    "files.associations": {
+        "*.overlay": "dts",
+        "*.conf": "properties",
+        "Kconfig*": "kconfig"
+    },
+
+    "workbench.tree.indent": 10,
+    "workbench.tree.renderIndentGuides": "always",
+    "explorer.compactFolders": false,
+    "workbench.colorCustomizations": {
+        "tree.indentGuidesStroke": "#00ff73"
+    },
+}

@@ -3,12 +3,11 @@
 # 每一对 config 定义一个 topic，select ZBUS
 # 头文件在 topic/ 下
 
-config TPC_CHASSIS_TO_CAN
+config TPC_TO_CAN_TX
     default n
-    bool "Chassis- CAN channel"
-    select ZBUS
+    bool "CAN TX queue"
     help
-        chassis 发布 → can_tx 订阅
+        CAN 发送消息队列
 
 config TPC_REMOTE_TO
     default n

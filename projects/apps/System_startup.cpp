@@ -11,6 +11,7 @@
 
 #include "System_startup.h"
 #include "trd_chassis.hpp"
+#include "trd_gimbal.hpp"
 #include "trd_can_tx.hpp"
 #include "trd_gpio.hpp"
 #include "remote.hpp"
@@ -26,13 +27,15 @@ void System_Modules_Init()
 {
     output ::thread_init();
     chassis::thread_init();
+    gimbal ::thread_init();
     remote ::thread_init();
 }
 
 void System_Thread_Start()
 {
-    can    ::thread_start();
-    chassis::thread_start();
-    output ::thread_start();
-    remote ::thread_start();
+    remote ::thread_start(4);
+    can    ::thread_start(4);
+    chassis::thread_start(5);
+    gimbal ::thread_start(5);
+    output ::thread_start(6);
 }

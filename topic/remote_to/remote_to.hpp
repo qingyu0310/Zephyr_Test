@@ -23,7 +23,7 @@ struct Channel
     float pitch = 0.0f, yaw = 0.0f;
 };
 
-struct RemoteData 
+struct Message 
 {
     uint32_t version = 0;
 
@@ -45,4 +45,5 @@ struct RemoteData
 }
 
 ZBUS_CHAN_DECLARE(pub_remote_to);
+
 ZBUS_OBS_DECLARE(sub_remote_to);

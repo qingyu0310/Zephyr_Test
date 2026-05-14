@@ -11,10 +11,12 @@
 
 #include "trd_chassis.hpp"
 #include "trd_can_tx.hpp"
+#include "trd_gimbal.hpp"
 
 void user_can1_rx_callback(struct can_frame &frame, void *)
 {
     using namespace instance::chassis;
+    using namespace instance::gimbal;
 
     switch (frame.id)
     {
@@ -43,6 +45,10 @@ void user_can1_rx_callback(struct can_frame &frame, void *)
             break;
         #endif
 
+        case kBYawMasterId:
+            byaw_.CanCpltRxCallback(frame.data);
+            break;
+            
         default:
             break;
     }
