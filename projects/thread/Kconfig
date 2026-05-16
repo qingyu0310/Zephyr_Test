@@ -9,6 +9,8 @@ rsource "../../modules/Kconfig"
 rsource "../../topic/Kconfig"
 rsource "../../cmd/shell/Kconfig"
 
+######################################################
+
 # gpio线程 翻转led灯，用来反应代码是否运行
 config TRD_GPIO
     default y
@@ -18,6 +20,7 @@ config TRD_GPIO
     help
         使能GPIO线程
 
+######################################################
 
 # chassis线程
 config TRD_CHASSIS
@@ -25,7 +28,6 @@ config TRD_CHASSIS
     bool "Chassis control thread"
     select MOD_CTL_POWER
     select MOD_DEV_MOTOR_DJI
-
     select TPC_TO_CAN_TX
     select TPC_REMOTE_TO
 
@@ -41,17 +43,21 @@ config USE_POWERMETER
     help
         使能功率计（依赖底盘线程开启）
 
+######################################################
 
 # gimbal线程
 config TRD_GIMBAL
-    default y
+    default n
     bool "Gimbal control thread"
+    select CTL_PID
     select MOD_DEV_MOTOR_DM
     select TPC_TO_CAN_TX
     select TPC_REMOTE_TO
 
     help
         使能云台控制线程
+
+######################################################
 
 # can发送线程
 config TRD_CAN_TX
@@ -62,6 +68,8 @@ config TRD_CAN_TX
     help
         使能CAN发送线程，从消息队列取帧发送
 
+######################################################
+
 # remote线程
 config TRD_REMOTE
     default y
@@ -70,7 +78,17 @@ config TRD_REMOTE
     help
         使能遥控线程
 
+######################################################
 
+# tflm线程（默认关闭，需测试时手动开）
+config TRD_TFLM
+    bool "TFLM inference thread"
+    default y
+    select TFLM
+    help
+        使能 TFLM 推理测试线程
+
+######################################################
 
 # 用户添加测试
 config USER_TEST_ADD
@@ -78,3 +96,6 @@ config USER_TEST_ADD
     bool "user's test add config"
     help
         临时添加你想测试的config
+
+
+

@@ -5,6 +5,52 @@ CompileFlags:
     - -Wno-unused-variable
     - -isystem
     - D:/Zephyr/zephyr-sdk-0.16.8/arm-zephyr-eabi/lib/gcc/arm-zephyr-eabi/12.2.0/include
+    - -isystem
+    - D:/Zephyr/zephyr-sdk-0.16.8/arm-zephyr-eabi/arm-zephyr-eabi/include/c++/12.2.0/arm-zephyr-eabi
+    - -isystem
+    - D:/Zephyr/zephyr-sdk-0.16.8/riscv64-zephyr-elf/riscv64-zephyr-elf/include/c++/12.2.0
+    - -isystem
+    - D:/Zephyr/zephyr-sdk-0.16.8/riscv64-zephyr-elf/lib/gcc/riscv64-zephyr-elf/12.2.0/include
+    - -isystem
+    - D:/Zephyr/zephyr-sdk-0.16.8/riscv64-zephyr-elf/riscv64-zephyr-elf/include
+    - -isystem
+    - D:/Zephyr/zephyr-sdk-0.16.8/riscv64-zephyr-elf/riscv64-zephyr-elf/include/c++/12.2.0/riscv64-zephyr-elf
+    - -isystem
+    - D:/Zephyr/zephyr-sdk-0.16.8/riscv64-zephyr-elf/picolibc/include
+    - -I
+    - D:/Zephyr/projects/tflm/algorithm/tflm
+    - -I
+    - D:/Zephyr/projects/tflm/algorithm/tflm/tensorflow/lite/micro
+    - -I
+    - D:/Zephyr/projects/tflm/algorithm/tflm/tensorflow/lite/micro/arena_allocator
+    - -I
+    - D:/Zephyr/projects/tflm/algorithm/tflm/tensorflow/lite/micro/memory_planner
+    - -I
+    - D:/Zephyr/projects/tflm/algorithm/tflm/tensorflow/lite/micro/tflite_bridge
+    - -I
+    - D:/Zephyr/projects/tflm/algorithm/tflm/tensorflow/lite/micro/kernels
+    - -I
+    - D:/Zephyr/projects/tflm/algorithm/tflm/tensorflow/lite/c
+    - -I
+    - D:/Zephyr/projects/tflm/algorithm/tflm/tensorflow/lite/core/c
+    - -I
+    - D:/Zephyr/projects/tflm/algorithm/tflm/tensorflow/lite/core/api
+    - -I
+    - D:/Zephyr/projects/tflm/algorithm/tflm/tensorflow/lite/kernels
+    - -I
+    - D:/Zephyr/projects/tflm/algorithm/tflm/tensorflow/lite/kernels/internal
+    - -I
+    - D:/Zephyr/projects/tflm/algorithm/tflm/tensorflow/lite/kernels/internal/reference
+    - -I
+    - D:/Zephyr/projects/tflm/algorithm/tflm/tensorflow/lite/kernels/internal/optimized
+    - -I
+    - D:/Zephyr/projects/tflm/algorithm/tflm/tensorflow/lite/schema
+    - -I
+    - D:/Zephyr/projects/tflm/algorithm/tflm/tensorflow/compiler/mlir/lite/schema
+    - -I
+    - D:/Zephyr/projects/tflm/algorithm/tflm/port
+    - -I
+    - D:/Zephyr/projects/tflm/third_party/flatbuffers/include
   Remove:
     - -mabi=*
     - -march=*
@@ -23,3 +69,4 @@ Diagnostics:
     - drv_unknown_argument
     - unknown_warning_option
     - unused_variable
+    - no_member

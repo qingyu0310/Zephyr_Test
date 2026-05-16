@@ -36,17 +36,17 @@ namespace instance::gimbal {
         alg::pid::Pid position {};      // 位置环 (rad 或 °，取决于输入)
     };
 
+    struct GimbalModule {
+        DmMotor motor;
+        CtrlAlg ctrl;
+    };
+
     // 小yaw
-    inline DmMotor syaw_       {};
-    inline CtrlAlg syaw_ctrl_  {};
-
+    inline GimbalModule small_yaw_ {};
     // 大yaw
-    inline DmMotor byaw_       {};
-    inline CtrlAlg byaw_ctrl_  {};
-
+    inline GimbalModule big_yaw_   {};
     // pitch
-    inline DmMotor pitch_      {};
-    inline CtrlAlg pitch_ctrl_ {}; 
+    inline GimbalModule pitch_     {};
 }
 
 

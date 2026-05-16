@@ -34,6 +34,44 @@ constexpr float   kPitchRadPerCycle = 2.0f * kTaskRunningCycle * 0.001f;    // p
 static float g_byaw_radian  = 0.0f;
 static float g_pitch_radian = 0.0f;
 
+static void ProcessMotor(GimbalModule& mod, float& radian, topic::to_can_tx::Message& msg, Timer& timer)
+{
+    const auto snap = mod.motor.ReadAll();
+
+    switch (snap.err)
+    {
+        case DmErrorStatus::Enable:
+        {
+            const float diff = radian - snap.radian;
+            mod.ctrl.position.SetTarget(0);
+            mod.ctrl.position.SetNow(-diff);
+            const float omega_ref = mod.ctrl.position.Calc();
+
+            mod.ctrl.omega.SetTarget(omega_ref);
+            mod.ctrl.omega.SetNow(snap.omega);
+            const float tor_ref = mod.ctrl.omega.Calc();
+
+            mod.motor.SetTargetTor(tor_ref);
+            mod.motor.CtrlData(msg.data);
+            msg.tx_id = mod.motor.GetTxId();
+            k_msgq_put(topic::to_can_tx::gimbal, &msg, K_NO_WAIT);
+            break;
+        }
+        case DmErrorStatus::Disable:
+        {
+            timer.Clock([&]()
+            {
+                msg.tx_id = mod.motor.GetTxId();
+                mod.motor.EnableData(msg.data);
+                k_msgq_put(topic::to_can_tx::gimbal, &msg, K_NO_WAIT);
+            });
+            break;
+        }
+        default:
+            break;
+    }
+}
+
 static void Task(void*, void*, void*)
 {
     Timer timer (1000);
@@ -52,54 +90,11 @@ static void Task(void*, void*, void*)
             g_pitch_radian += rx.pitch * kPitchRadPerCycle;
         }
 
-        {
-            const auto snap = byaw_.ReadAll();
+        ProcessMotor(big_yaw_, g_byaw_radian, msg, timer);
+        // ProcessMotor(small_yaw_, g_syaw_radian, msg, timer);
+        // ProcessMotor(pitch_, g_pitch_radian, msg, timer);
 
-            switch (snap.err) 
-            {
-                case DmErrorStatus::Enable:
-                {
-                    // 外环：角度 → 角速度
-                    const float diff = g_byaw_radian - snap.radian;
-                    byaw_ctrl_.position.SetTarget(0);
-                    byaw_ctrl_.position.SetNow(-diff);
-                    const float omega_ref = byaw_ctrl_.position.Calc();
-
-                    // 内环：角速度 → 转矩
-                    byaw_ctrl_.omega.SetTarget(omega_ref);
-                    byaw_ctrl_.omega.SetNow(snap.omega);
-                    const float tor_ref = byaw_ctrl_.omega.Calc();
-
-                    byaw_.SetTargetTor(tor_ref);
-                    byaw_.CtrlData(msg.data);
-                    msg.tx_id = byaw_.GetTxId();
-
-                    printk("%f,%f\n", (double)diff, (double)tor_ref);
-
-                    k_msgq_put(topic::to_can_tx::gimbal, &msg, K_NO_WAIT);
-
-                    break;
-                }
-                case DmErrorStatus::Disable:
-                {
-                    timer.Update();
-
-                    timer.Clock([&]()
-                    {
-                        msg.tx_id = byaw_.GetTxId();
-                        byaw_.EnableData(msg.data);
-
-                        k_msgq_put(topic::to_can_tx::gimbal, &msg, K_NO_WAIT);
-                    });
-
-                    break;
-                }
-                default:
-                    break;
-            }
-        }
-
-        k_msleep(1);
+        k_msleep(kTaskRunningCycle);
     }
 }
 
@@ -129,9 +124,9 @@ void thread_init()
             .tor_max        = 10,
         };
         
-        byaw_.Init(cfg);
-        byaw_ctrl_.position.Init(position_cfg);
-        byaw_ctrl_.omega.Init(omega_cfg);
+        big_yaw_.motor.Init(cfg);
+        big_yaw_.ctrl.position.Init(position_cfg);
+        big_yaw_.ctrl.omega.Init(omega_cfg);
     }
 }
 

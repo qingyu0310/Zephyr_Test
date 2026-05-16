@@ -9,17 +9,22 @@
  * 
  */
 
+#include <zephyr/drivers/can.h>
+
+#ifdef CONFIG_TRD_CHASSIS
 #include "trd_chassis.hpp"
-#include "trd_can_tx.hpp"
+#endif
+#ifdef CONFIG_TRD_GIMBAL
 #include "trd_gimbal.hpp"
+#endif
 
 void user_can1_rx_callback(struct can_frame &frame, void *)
 {
-    using namespace instance::chassis;
-    using namespace instance::gimbal;
-
     switch (frame.id)
     {
+    #ifdef CONFIG_TRD_CHASSIS
+        using namespace instance::chassis;
+
         case kSteerCanId[0]:
             chassis_wheel[0].steer_motor.CanCpltRxCallback(frame.data);
             break;
@@ -44,10 +49,15 @@ void user_can1_rx_callback(struct can_frame &frame, void *)
             DrivePwrMeter.CanCpltRxCallback(frame.data);
             break;
         #endif
+    #endif
+
+    #ifdef CONFIG_TRD_GIMBAL
+        using namespace instance::gimbal;
 
         case kBYawMasterId:
-            byaw_.CanCpltRxCallback(frame.data);
+            big_yaw_.motor.CanCpltRxCallback(frame.data);
             break;
+    #endif
             
         default:
             break;

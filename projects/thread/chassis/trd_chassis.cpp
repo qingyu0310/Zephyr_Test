@@ -81,7 +81,7 @@ namespace thread::chassis {
 
 using namespace instance::chassis;
 
-static Thread<> thread_{};
+static Thread<1024 * 8> thread_{};
 
 // 电机参数
 static constexpr float    kTorqueK          = 0.3f;               // C6xx 转矩常数 N·m/A
@@ -207,7 +207,7 @@ static void ControlCalculate()
 
             wheel_pid[wi].steer_angle.SetTarget(g_steer_target[wi]);
             wheel_pid[wi].steer_angle.SetNow(chassis_angle);
-            const float torque_ref  = wheel_pid[wi].steer_angle. CalcAngle();
+            const float torque_ref  = wheel_pid[wi].steer_angle. Calc();
             const float current_ref = wheel_pid[wi].steer_torque.Calc(torque_ref, snap.torque) / kTorqueK;
             SteerPwrCtrl.SetTarget(wi, current_ref);
             SteerPwrCtrl.SetMotorData(wi, snap.torque, snap.omega, wheel_pid[wi].steer_angle.GetError());
@@ -224,6 +224,7 @@ static void ControlCalculate()
             const float current_ref = wheel_pid[wi].drive_torque.  Calc(torque_ref, snap.torque) / kTorqueK;
             DrivePwrCtrl.SetTarget(wi, current_ref);
             DrivePwrCtrl.SetMotorData(wi, snap.torque, snap.omega, wheel_pid[wi].drive_velocity.GetError());
+
         }
     }
 }

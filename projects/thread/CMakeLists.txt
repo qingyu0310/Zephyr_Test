@@ -29,3 +29,12 @@ if(CONFIG_TRD_CAN_TX)
 		${CMAKE_CURRENT_SOURCE_DIR}/can
 	)
 endif()
+
+
+if(CONFIG_TRD_TFLM)
+	target_sources(app PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/tflm/trd_tflm.cpp)
+	target_include_directories(app PRIVATE
+		${CMAKE_CURRENT_SOURCE_DIR}
+		${CMAKE_CURRENT_SOURCE_DIR}/tflm
+	)
+endif()
